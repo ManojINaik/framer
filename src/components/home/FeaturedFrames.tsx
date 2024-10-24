@@ -1,5 +1,8 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Star, ShoppingCart } from 'lucide-react';
+import { useCartStore } from '../../lib/store';
+import { formatPrice } from '../../lib/utils';
 
 const frames = [
   {
@@ -26,6 +29,16 @@ const frames = [
 ];
 
 export default function FeaturedFrames() {
+  const navigate = useNavigate();
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = (frame: typeof frames[0]) => {
+    addItem({
+      ...frame,
+      quantity: 1
+    });
+  };
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,7 +52,10 @@ export default function FeaturedFrames() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {frames.map((frame) => (
             <div key={frame.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
-              <div className="relative h-64 overflow-hidden">
+              <div 
+                className="relative h-64 overflow-hidden cursor-pointer"
+                onClick={() => navigate(`/product/${frame.id}`)}
+              >
                 <img
                   src={frame.image}
                   alt={frame.name}
@@ -54,8 +70,12 @@ export default function FeaturedFrames() {
                     <span className="ml-1 text-sm text-gray-600">{frame.rating}</span>
                   </div>
                 </div>
-                <p className="text-xl font-bold text-indigo-600 mb-4">${frame.price}</p>
-                <button className="w-full bg-gray-900 text-white py-2 rounded hover:bg-gray-800 transition-colors">
+                <p className="text-xl font-bold text-indigo-600 mb-4">{formatPrice(frame.price)}</p>
+                <button 
+                  onClick={() => handleAddToCart(frame)}
+                  className="w-full bg-gray-900 text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="h-4 w-4" />
                   Add to Cart
                 </button>
               </div>
