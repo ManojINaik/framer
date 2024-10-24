@@ -175,3 +175,49 @@ export const useProductStore = create<ProductStore>()(
     }
   )
 );
+
+// Blog types and store
+export interface BlogPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  date: string;
+  author: string;
+}
+
+interface BlogStore {
+  posts: BlogPost[];
+  addPost: (post: Omit<BlogPost, 'id'>) => void;
+  updatePost: (id: number, updates: Partial<BlogPost>) => void;
+  deletePost: (id: number) => void;
+}
+
+export const useBlogStore = create<BlogStore>()(
+  persist(
+    (set) => ({
+      posts: [],
+      addPost: (post) =>
+        set((state) => ({
+          posts: [
+            ...state.posts,
+            { ...post, id: Date.now() }
+          ]
+        })),
+      updatePost: (id, updates) =>
+        set((state) => ({
+          posts: state.posts.map((post) =>
+            post.id === id ? { ...post, ...updates } : post
+          )
+        })),
+      deletePost: (id) =>
+        set((state) => ({
+          posts: state.posts.filter((post) => post.id !== id)
+        }))
+    }),
+    {
+      name: 'blog-storage'
+    }
+  )
+);

@@ -1,38 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart } from 'lucide-react';
-import { useCartStore } from '../../lib/store';
+import { useCartStore, useProductStore } from '../../lib/store';
 import { formatPrice } from '../../lib/utils';
-
-const frames = [
-  {
-    id: 1,
-    name: 'Classic Wood Frame',
-    price: 79.99,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1544161513-0179fe746fd5?auto=format&fit=crop&q=80'
-  },
-  {
-    id: 2,
-    name: 'Modern Metallic',
-    price: 99.99,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1582053433976-25c00369fc93?auto=format&fit=crop&q=80'
-  },
-  {
-    id: 3,
-    name: 'Minimalist White',
-    price: 69.99,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&q=80'
-  }
-];
 
 export default function FeaturedFrames() {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
+  const products = useProductStore((state) => state.products);
 
-  const handleAddToCart = (frame: typeof frames[0]) => {
+  // Get the top 3 highest-rated products
+  const featuredFrames = [...products]
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 3);
+
+  if (featuredFrames.length === 0) {
+    return null; // Don't show the section if there are no products
+  }
+
+  const handleAddToCart = (frame: typeof featuredFrames[0]) => {
     addItem({
       ...frame,
       quantity: 1
@@ -50,7 +36,7 @@ export default function FeaturedFrames() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {frames.map((frame) => (
+          {featuredFrames.map((frame) => (
             <div key={frame.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
               <div 
                 className="relative h-64 overflow-hidden cursor-pointer"

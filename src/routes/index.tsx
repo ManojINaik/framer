@@ -10,9 +10,12 @@ import CartPage from '../pages/CartPage';
 import CheckoutPage from '../pages/CheckoutPage';
 import AccountPage from '../pages/AccountPage';
 import AuthPage from '../pages/AuthPage';
+import BlogPage from '../pages/BlogPage';
+import BlogPostPage from '../pages/BlogPostPage';
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminProducts from '../pages/admin/AdminProducts';
+import AdminBlog from '../pages/admin/AdminBlog';
 import AdminUsers from '../pages/admin/AdminUsers';
 import AdminSettings from '../pages/admin/AdminSettings';
 
@@ -27,7 +30,9 @@ export const router = createBrowserRouter([
       { path: 'cart', element: <CartPage /> },
       { path: 'checkout', element: <CheckoutPage /> },
       { path: 'account', element: <AccountPage /> },
-      { path: 'auth', element: <AuthPage /> }
+      { path: 'auth', element: <AuthPage /> },
+      { path: 'blog', element: <BlogPage /> },
+      { path: 'blog/:id', element: <BlogPostPage /> }
     ]
   },
   {
@@ -45,6 +50,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <AdminDashboard /> },
       { path: 'products', element: <AdminProducts /> },
+      { path: 'blog', element: <AdminBlog /> },
       { path: 'users', element: <AdminUsers /> },
       { path: 'settings', element: <AdminSettings /> }
     ]

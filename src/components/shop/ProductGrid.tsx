@@ -1,54 +1,33 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart } from 'lucide-react';
-import { useCartStore } from '../../lib/store';
+import { useCartStore, useProductStore } from '../../lib/store';
 import { formatPrice } from '../../lib/utils';
 
 interface ProductGridProps {
   searchQuery?: string | null;
 }
 
-const products = [
-  {
-    id: 1,
-    name: 'Classic Wood Frame',
-    price: 79.99,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1544161513-0179fe746fd5?auto=format&fit=crop&q=80',
-    material: 'Wood',
-    color: 'Brown'
-  },
-  {
-    id: 2,
-    name: 'Modern Metallic',
-    price: 99.99,
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1582053433976-25c00369fc93?auto=format&fit=crop&q=80',
-    material: 'Metal',
-    color: 'Silver'
-  },
-  {
-    id: 3,
-    name: 'Minimalist White',
-    price: 69.99,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&q=80',
-    material: 'Wood',
-    color: 'White'
-  }
-];
-
 export default function ProductGrid({ searchQuery }: ProductGridProps) {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
+  const products = useProductStore((state) => state.products);
 
   const filteredProducts = searchQuery
     ? products.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.material.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.color.toLowerCase().includes(searchQuery.toLowerCase())
+        product.material?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.color?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : products;
+
+  if (products.length === 0) {
+    return (
+      <div className="flex-1 text-center py-12">
+        <p className="text-gray-600">No frames available. Please add some products in the admin panel.</p>
+      </div>
+    );
+  }
 
   if (searchQuery && filteredProducts.length === 0) {
     return (
