@@ -3,15 +3,18 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import RootLayout from '../components/layout/RootLayout';
 import AdminLayout from '../components/layout/AdminLayout';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
+import ProtectedUserRoute from '../components/auth/ProtectedUserRoute';
 import HomePage from '../pages/HomePage';
 import ShopPage from '../pages/ShopPage';
 import ProductPage from '../pages/ProductPage';
 import CartPage from '../pages/CartPage';
 import CheckoutPage from '../pages/CheckoutPage';
 import AccountPage from '../pages/AccountPage';
+import ProfilePage from '../pages/ProfilePage';
 import AuthPage from '../pages/AuthPage';
 import BlogPage from '../pages/BlogPage';
 import BlogPostPage from '../pages/BlogPostPage';
+import CustomFramePage from '../pages/CustomFramePage';
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminProducts from '../pages/admin/AdminProducts';
@@ -27,12 +30,42 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'shop', element: <ShopPage /> },
       { path: 'product/:id', element: <ProductPage /> },
-      { path: 'cart', element: <CartPage /> },
-      { path: 'checkout', element: <CheckoutPage /> },
-      { path: 'account', element: <AccountPage /> },
+      { 
+        path: 'cart', 
+        element: (
+          <ProtectedUserRoute>
+            <CartPage />
+          </ProtectedUserRoute>
+        ) 
+      },
+      { 
+        path: 'checkout', 
+        element: (
+          <ProtectedUserRoute>
+            <CheckoutPage />
+          </ProtectedUserRoute>
+        ) 
+      },
+      { 
+        path: 'account', 
+        element: (
+          <ProtectedUserRoute>
+            <AccountPage />
+          </ProtectedUserRoute>
+        ) 
+      },
+      { 
+        path: 'profile', 
+        element: (
+          <ProtectedUserRoute>
+            <ProfilePage />
+          </ProtectedUserRoute>
+        ) 
+      },
       { path: 'auth', element: <AuthPage /> },
       { path: 'blog', element: <BlogPage /> },
-      { path: 'blog/:id', element: <BlogPostPage /> }
+      { path: 'blog/:id', element: <BlogPostPage /> },
+      { path: 'custom-frame', element: <CustomFramePage /> }
     ]
   },
   {
