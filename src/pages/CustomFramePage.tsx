@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Upload, Frame, Palette, ArrowRight } from 'lucide-react';
+import { useCartStore } from '../lib/store';
 
 interface FrameOptions {
   size: string;
@@ -15,10 +17,14 @@ const initialOptions: FrameOptions = {
   matting: 'none'
 };
 
+const CUSTOM_FRAME_BASE_PRICE = 89.99;
+
 export default function CustomFramePage() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [options, setOptions] = useState<FrameOptions>(initialOptions);
   const [image, setImage] = useState<string | null>(null);
+  const addItem = useCartStore((state) => state.addItem);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,6 +36,26 @@ export default function CustomFramePage() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!image) return;
+    
+    addItem({
+      id: Date.now(), // Generate unique ID
+      name: 'Custom Frame',
+      price: CUSTOM_FRAME_BASE_PRICE,
+      quantity: 1,
+      image: image,
+      customizations: {
+        size: options.size,
+        material: options.material,
+        color: options.color,
+        matting: options.matting
+      }
+    });
+    
+    navigate('/cart');
   };
 
   return (
@@ -209,12 +235,15 @@ export default function CustomFramePage() {
                         <div className="pt-4 border-t">
                           <div className="flex justify-between">
                             <dt className="text-gray-900 font-semibold">Total:</dt>
-                            <dd className="text-xl font-bold text-indigo-600">$89.99</dd>
+                            <dd className="text-xl font-bold text-indigo-600">${CUSTOM_FRAME_BASE_PRICE}</dd>
                           </div>
                         </div>
                       </dl>
                     </div>
-                    <button className="w-full bg-indigo-600 text-white py-3 rounded-lg mt-6 hover:bg-indigo-700 transition-colors flex items-center justify-center">
+                    <button 
+                      onClick={handleAddToCart}
+                      className="w-full bg-indigo-600 text-white py-3 rounded-lg mt-6 hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                    >
                       Add to Cart
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </button>

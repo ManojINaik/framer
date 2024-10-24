@@ -4,6 +4,10 @@ import { Star, ShoppingCart } from 'lucide-react';
 import { useCartStore } from '../../lib/store';
 import { formatPrice } from '../../lib/utils';
 
+interface ProductGridProps {
+  searchQuery?: string | null;
+}
+
 const products = [
   {
     id: 1,
@@ -31,18 +35,33 @@ const products = [
     image: 'https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&q=80',
     material: 'Wood',
     color: 'White'
-  },
-  // Add more products here
+  }
 ];
 
-export default function ProductGrid() {
+export default function ProductGrid({ searchQuery }: ProductGridProps) {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
+
+  const filteredProducts = searchQuery
+    ? products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.material.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.color.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : products;
+
+  if (searchQuery && filteredProducts.length === 0) {
+    return (
+      <div className="flex-1 text-center py-12">
+        <p className="text-gray-600">No frames found matching "{searchQuery}"</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
             <div 
               className="relative h-64 overflow-hidden cursor-pointer"

@@ -1,7 +1,10 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative h-[90vh] flex items-center">
       <div className="absolute inset-0 z-0">
@@ -23,11 +26,17 @@ export default function Hero() {
           find the perfect frame for every memory.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center">
+          <button 
+            onClick={() => navigate('/custom-frame')}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center"
+          >
             Design Your Frame
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
-          <button className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-8 py-3 rounded-lg font-medium">
+          <button 
+            onClick={() => navigate('/shop')}
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-8 py-3 rounded-lg font-medium"
+          >
             Explore Collection
           </button>
         </div>
