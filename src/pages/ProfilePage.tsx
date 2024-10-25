@@ -1,37 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Mail, Phone, MapPin, Camera, 
   Bell, Lock, CreditCard, Heart, Package,
-  ChevronRight, Edit2, Save, X, AlertCircle
+  ChevronRight, Edit2, Save, X
 } from 'lucide-react';
-import { useUserStore, useCartStore, useWishlistStore } from '../lib/store';
-
-type PaymentMethod = {
-  id: string;
-  last4: string;
-  brand: string;
-  expiry: string;
-};
-
-type Order = {
-  id: string;
-  date: string;
-  status: string;
-  total: number;
-};
+import { useUserStore } from '../lib/store';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, setUser, logout } = useUserStore();
-  const cartItems = useCartStore((state) => state.items);
-  const wishlistItems = useWishlistStore((state) => state.items);
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -44,76 +23,19 @@ export default function ProfilePage() {
     }
   });
 
-  // Mock payment methods and orders for demonstration
-  const [paymentMethods] = useState<PaymentMethod[]>([
-    { id: '1', last4: '4242', brand: 'visa', expiry: '12/24' },
-    { id: '2', last4: '8888', brand: 'mastercard', expiry: '06/25' }
-  ]);
-
-  const [orders] = useState<Order[]>([
-    { id: '1', date: '2024-02-20', status: 'delivered', total: 89.99 },
-    { id: '2', date: '2024-02-15', status: 'processing', total: 149.99 }
-  ]);
-
   if (!user) {
     navigate('/auth');
     return null;
   }
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type and size
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      setError('Image size should be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    setError('');
-
-    try {
-      // Convert file to base64 for demo purposes
-      // In production, you'd upload to a server/storage
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUser({
-          ...user,
-          photoURL: reader.result as string
-        });
-        setIsUploading(false);
-        setSuccess('Profile photo updated successfully');
-        setTimeout(() => setSuccess(''), 3000);
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      setError('Failed to upload photo. Please try again.');
-      setIsUploading(false);
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
-    try {
-      setUser({
-        ...user,
-        name: formData.name,
-        email: formData.email
-      });
-      setIsEditing(false);
-      setSuccess('Profile updated successfully');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError('Failed to update profile. Please try again.');
-    }
+    setUser({
+      ...user,
+      name: formData.name,
+      email: formData.email
+    });
+    setIsEditing(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,9 +65,7 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative">
               <div className="w-32 h-32 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center overflow-hidden">
-                {isUploading ? (
-                  <div className="animate-pulse text-white">Uploading...</div>
-                ) : user?.photoURL ? (
+                {user?.photoURL ? (
                   <img 
                     src={user.photoURL} 
                     alt={user.name} 
@@ -157,18 +77,7 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handlePhotoUpload}
-                accept="image/*"
-                className="hidden"
-              />
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full text-white hover:bg-indigo-700 transition-colors shadow-lg disabled:opacity-50"
-              >
+              <button className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full text-white hover:bg-indigo-700 transition-colors shadow-lg">
                 <Camera className="w-5 h-5" />
               </button>
             </div>
@@ -198,20 +107,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          {/* Status Messages */}
-          {error && (
-            <div className="mt-4 flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
-              <AlertCircle className="h-5 w-5" />
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mt-4 flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
-              <CheckCircle className="h-5 w-5" />
-              {success}
-            </div>
-          )}
         </div>
 
         {/* Main Content */}
@@ -305,68 +200,6 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Orders Section */}
-                  <div className="p-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Orders</h2>
-                    {orders.length > 0 ? (
-                      <div className="space-y-4">
-                        {orders.map((order) => (
-                          <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div>
-                              <p className="font-medium">Order #{order.id}</p>
-                              <p className="text-sm text-gray-600">
-                                {new Date(order.date).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">${order.total.toFixed(2)}</p>
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                order.status === 'delivered' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {order.status}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-600">No orders yet</p>
-                    )}
-                  </div>
-
-                  {/* Payment Methods Section */}
-                  <div className="p-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment Methods</h2>
-                    {paymentMethods.length > 0 ? (
-                      <div className="space-y-4">
-                        {paymentMethods.map((method) => (
-                          <div key={method.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="flex items-center">
-                              <CreditCard className="w-5 h-5 text-gray-400 mr-3" />
-                              <div>
-                                <p className="font-medium capitalize">{method.brand}</p>
-                                <p className="text-sm text-gray-600">
-                                  **** **** **** {method.last4}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm text-gray-600">Expires {method.expiry}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-600">No payment methods added</p>
-                    )}
-                    <button
-                      onClick={() => navigate('/payment-methods')}
-                      className="mt-4 w-full bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      Add Payment Method
-                    </button>
-                  </div>
-
                   <div className="p-8">
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Notification Preferences</h2>
                     <div className="space-y-4">
@@ -412,44 +245,26 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
               <div className="space-y-2">
-                <button 
-                  onClick={() => navigate('/orders')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                >
+                <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
                     <Package className="w-5 h-5 text-gray-400 mr-3" />
                     <span className="text-gray-700">Orders</span>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-500 mr-2">{orders.length}</span>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
-                <button 
-                  onClick={() => navigate('/wishlist')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                >
+                <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
                     <Heart className="w-5 h-5 text-gray-400 mr-3" />
                     <span className="text-gray-700">Wishlist</span>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-500 mr-2">{wishlistItems.length}</span>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
-                <button 
-                  onClick={() => navigate('/payment-methods')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                >
+                <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
                     <CreditCard className="w-5 h-5 text-gray-400 mr-3" />
                     <span className="text-gray-700">Payment Methods</span>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-500 mr-2">{paymentMethods.length}</span>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
             </div>
@@ -459,10 +274,7 @@ export default function ProfilePage() {
               <p className="text-sm text-indigo-700 mb-4">
                 Our customer support team is available 24/7 to assist you.
               </p>
-              <button 
-                onClick={() => navigate('/support')}
-                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
-              >
+              <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
                 Contact Support
               </button>
             </div>

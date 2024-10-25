@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../lib/store';
-import OrderSummary from '../components/checkout/OrderSummary';
+import { formatPrice } from '../lib/utils';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const { items } = useCartStore();
+  const { items, total } = useCartStore();
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -198,8 +198,41 @@ export default function CheckoutPage() {
             </button>
           </form>
 
-          <div>
-            <OrderSummary />
+          <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
+            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+            <div className="divide-y">
+              {items.map((item) => (
+                <div key={item.id} className="py-3 flex justify-between">
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                  </div>
+                  <p className="font-medium">
+                    {formatPrice(item.price * item.quantity)}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="border-t mt-4 pt-4 space-y-2">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>{formatPrice(total)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Tax</span>
+                <span>{formatPrice(total * 0.1)}</span>
+              </div>
+              <div className="border-t pt-2">
+                <div className="flex justify-between font-semibold text-lg">
+                  <span>Total</span>
+                  <span>{formatPrice(total * 1.1)}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

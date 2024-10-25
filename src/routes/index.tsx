@@ -15,6 +15,7 @@ import AuthPage from '../pages/AuthPage';
 import BlogPage from '../pages/BlogPage';
 import BlogPostPage from '../pages/BlogPostPage';
 import CustomFramePage from '../pages/CustomFramePage';
+import WishlistPage from '../pages/WishlistPage';
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminProducts from '../pages/admin/AdminProducts';
@@ -61,6 +62,14 @@ export const router = createBrowserRouter([
             <ProfilePage />
           </ProtectedUserRoute>
         ) 
+      },
+      {
+        path: 'wishlist',
+        element: (
+          <ProtectedUserRoute>
+            <WishlistPage />
+          </ProtectedUserRoute>
+        )
       },
       { path: 'auth', element: <AuthPage /> },
       { path: 'blog', element: <BlogPage /> },

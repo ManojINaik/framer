@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Trash2, ArrowRight } from 'lucide-react';
 import { useCartStore } from '../lib/store';
 import { formatPrice } from '../lib/utils';
-import OrderSummary from '../components/checkout/OrderSummary';
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { items, removeItem, updateQuantity } = useCartStore();
+  const { items, removeItem, updateQuantity, total } = useCartStore();
 
   if (items.length === 0) {
     return (
@@ -89,11 +88,31 @@ export default function CartPage() {
             </div>
           </div>
 
-          <div>
-            <OrderSummary />
+          <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
+            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>{formatPrice(total)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Tax</span>
+                <span>{formatPrice(total * 0.1)}</span>
+              </div>
+              <div className="pt-3 border-t">
+                <div className="flex justify-between font-semibold text-lg">
+                  <span>Total</span>
+                  <span>{formatPrice(total * 1.1)}</span>
+                </div>
+              </div>
+            </div>
             <button
               onClick={() => navigate('/checkout')}
-              className="w-full mt-4 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center"
+              className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center"
             >
               Proceed to Checkout
               <ArrowRight className="ml-2 h-5 w-5" />

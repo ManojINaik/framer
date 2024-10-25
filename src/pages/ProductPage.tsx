@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart, Heart, Share2, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useCartStore } from '../lib/store';
+import { useCartStore, useWishlistStore } from '../lib/store';
 import { formatPrice } from '../lib/utils';
 
 const product = {
@@ -29,10 +29,16 @@ const product = {
 
 export default function ProductPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState(product.sizes[1]);
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [currentImage, setCurrentImage] = useState(0);
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
+  
   const addItem = useCartStore((state) => state.addItem);
+  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
+  
+  const isInWishlist = wishlistItems.some(item => item.id === product.id);
 
   const handleAddToCart = () => {
     addItem({
@@ -42,6 +48,34 @@ export default function ProductPage() {
         color: selectedColor
       }
     });
+  };
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: product.description,
+      url: window.location.href
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setShowShareTooltip(true);
+        setTimeout(() => setShowShareTooltip(false), 2000);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   };
 
   return (
@@ -151,12 +185,31 @@ export default function ProductPage() {
                 {formatPrice(product.price)}
               </span>
               <div className="flex gap-4">
-                <button className="p-2 hover:bg-gray-100 rounded-full">
-                  <Heart className="h-6 w-6 text-gray-600" />
+                <button 
+                  onClick={handleWishlistToggle}
+                  className={`p-2 rounded-full transition-colors ${
+                    isInWishlist 
+                      ? 'bg-red-50 text-red-600' 
+                      : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                  title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart className={`h-6 w-6 ${isInWishlist ? 'fill-current' : ''}`} />
                 </button>
-                <button className="p-2 hover:bg-gray-100 rounded-full">
-                  <Share2 className="h-6 w-6 text-gray-600" />
-                </button>
+                <div className="relative">
+                  <button 
+                    onClick={handleShare}
+                    className="p-2 hover:bg-gray-100 rounded-full text-gray-600"
+                    title="Share"
+                  >
+                    <Share2 className="h-6 w-6" />
+                  </button>
+                  {showShareTooltip && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded whitespace-nowrap">
+                      Link copied!
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
