@@ -1,27 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Package, Heart, Settings, LogOut } from 'lucide-react';
-import { useUserStore } from '../lib/store';
-
-const mockOrders = [
-  {
-    id: '1',
-    date: '2024-02-20',
-    status: 'Delivered',
-    total: 159.98,
-    items: [
-      {
-        name: 'Classic Wood Frame',
-        quantity: 2,
-        price: 79.99
-      }
-    ]
-  }
-];
+import { useUserStore, useCartStore, useWishlistStore } from '../lib/store';
 
 export default function AccountPage() {
   const navigate = useNavigate();
   const { user, logout } = useUserStore();
+  const orders = useCartStore((state) => state.items);
+  const wishlistItems = useWishlistStore((state) => state.items);
 
   if (!user) {
     navigate('/auth');
@@ -50,15 +36,24 @@ export default function AccountPage() {
             </div>
 
             <nav className="space-y-2">
-              <button className="w-full flex items-center gap-3 px-4 py-2 text-indigo-600 bg-indigo-50 rounded">
+              <button 
+                onClick={() => navigate('/orders')}
+                className="w-full flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded"
+              >
                 <Package className="h-5 w-5" />
-                Orders
+                Orders ({orders.length})
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded">
+              <button 
+                onClick={() => navigate('/wishlist')}
+                className="w-full flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded"
+              >
                 <Heart className="h-5 w-5" />
-                Wishlist
+                Wishlist ({wishlistItems.length})
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded">
+              <button 
+                onClick={() => navigate('/settings')}
+                className="w-full flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded"
+              >
                 <Settings className="h-5 w-5" />
                 Settings
               </button>
@@ -76,45 +71,30 @@ export default function AccountPage() {
           <div className="md:col-span-3">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-semibold mb-6">Recent Orders</h2>
-              <div className="space-y-6">
-                {mockOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="border rounded-lg p-4 hover:border-indigo-600 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <p className="font-medium">Order #{order.id}</p>
-                        <p className="text-sm text-gray-600">
-                          Placed on {new Date(order.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                        {order.status}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="flex justify-between">
-                          <div>
-                            <p className="text-gray-900">{item.name}</p>
-                            <p className="text-sm text-gray-600">
-                              Qty: {item.quantity}
-                            </p>
-                          </div>
-                          <p className="font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
+              {orders.length > 0 ? (
+                <div className="space-y-6">
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="border rounded-lg p-4 hover:border-indigo-600 transition-colors"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <p className="font-medium">{order.name}</p>
+                          <p className="text-sm text-gray-600">
+                            Quantity: {order.quantity}
                           </p>
                         </div>
-                      ))}
+                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                          ${(order.price * order.quantity).toFixed(2)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="border-t mt-4 pt-4 flex justify-between">
-                      <span className="font-medium">Total</span>
-                      <span className="font-medium">${order.total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">No orders yet.</p>
+              )}
             </div>
           </div>
         </div>

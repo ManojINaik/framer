@@ -41,6 +41,36 @@ export interface User {
   photoURL?: string;
 }
 
+// Wishlist Store
+interface WishlistStore {
+  items: Product[];
+  addItem: (item: Product) => void;
+  removeItem: (id: number) => void;
+  isInWishlist: (id: number) => boolean;
+}
+
+export const useWishlistStore = create<WishlistStore>()(
+  persist(
+    (set, get) => ({
+      items: [],
+      addItem: (item) => {
+        const items = get().items;
+        if (!items.find((i) => i.id === item.id)) {
+          set({ items: [...items, item] });
+        }
+      },
+      removeItem: (id) =>
+        set((state) => ({
+          items: state.items.filter((item) => item.id !== id),
+        })),
+      isInWishlist: (id) => get().items.some((item) => item.id === id),
+    }),
+    {
+      name: 'wishlist-storage',
+    }
+  )
+);
+
 // User Store
 interface UserStore {
   user: User | null;

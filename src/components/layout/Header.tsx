@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, Search, Menu, Frame, X } from 'lucide-react';
-import { useCartStore } from '../../lib/store';
+import { ShoppingCart, Heart, Search, Menu, Frame, X, User } from 'lucide-react';
+import { useCartStore, useUserStore, useWishlistStore } from '../../lib/store';
 
 export default function Header() {
   const navigate = useNavigate();
   const items = useCartStore((state) => state.items);
+  const wishlistItems = useWishlistStore((state) => state.items);
+  const user = useUserStore((state) => state.user);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,8 +85,16 @@ export default function Header() {
               )}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full">
+            <button 
+              onClick={() => navigate('/wishlist')} 
+              className="p-2 hover:bg-gray-100 rounded-full relative"
+            >
               <Heart className="h-5 w-5 text-gray-600" />
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {wishlistItems.length}
+                </span>
+              )}
             </button>
             <button 
               onClick={() => navigate('/cart')} 
@@ -97,6 +107,30 @@ export default function Header() {
                 </span>
               )}
             </button>
+            {user ? (
+              <button
+                onClick={() => navigate('/profile')}
+                className="p-2 hover:bg-gray-100 rounded-full"
+                title="Profile"
+              >
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.name}
+                    className="h-5 w-5 rounded-full"
+                  />
+                ) : (
+                  <User className="h-5 w-5 text-gray-600" />
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/auth')}
+                className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+              >
+                Sign in
+              </button>
+            )}
             <button 
               className="md:hidden p-2 hover:bg-gray-100 rounded-full"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
